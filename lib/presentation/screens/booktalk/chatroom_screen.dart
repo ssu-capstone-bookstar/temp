@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/core/theme/app_colors.dart';
 import 'package:flutter_application_1/presentation/viewmodels/chatroom/chatroom_viewmodel.dart';
 import 'package:flutter_application_1/presentation/viewmodels/chatroom/state/chatroom_state.dart';
 import 'package:flutter_application_1/presentation/widgets/chat_bubble.dart';
@@ -34,9 +35,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   void _sendMessage() {
     final content = _textController.text.trim();
     if (content.isNotEmpty) {
-      ref
-          .read(chatRoomViewModelProvider.notifier)
-          .sendMessage(content);
+      ref.read(chatRoomViewModelProvider.notifier).sendMessage(content);
       _textController.clear();
       _scrollToBottom();
     }
@@ -58,6 +57,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(chatRoomViewModelProvider);
     final viewModel = ref.read(chatRoomViewModelProvider.notifier);
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -67,8 +68,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             Text('채팅방: ${widget.chatRoomId}'),
             Text(
               viewModel.isConnected ? '연결됨' : '연결 중...',
-              style: TextStyle(
-                fontSize: 12,
+              style: textTheme.bodySmall?.copyWith(
                 color: viewModel.isConnected ? Colors.green : Colors.orange,
               ),
             ),
@@ -99,23 +99,27 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   }
 
   Widget _buildBody(ChatRoomState state) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     if (state.errorMessage != null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error, size: 48, color: Colors.red),
+            Icon(Icons.error, size: 48, color: theme.colorScheme.error),
             const SizedBox(height: 16),
             Text('에러: ${state.errorMessage}'),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 ref.read(chatRoomViewModelProvider.notifier).clearError();
-                ref.read(chatRoomViewModelProvider.notifier).init(widget.chatRoomId);
+                ref
+                    .read(chatRoomViewModelProvider.notifier)
+                    .init(widget.chatRoomId);
               },
               child: const Text('다시 시도'),
             ),
@@ -123,23 +127,25 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
         ),
       );
     }
-    
+
     if (state.messages.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
+            const Icon(Icons.chat_bubble_outline,
+                size: 64, color: AppColors.onSurfaceVariant),
+            const SizedBox(height: 16),
             Text(
               '메시지를 보내 대화를 시작해보세요.',
-              style: TextStyle(color: Colors.grey),
+              style: textTheme.bodyLarge
+                  ?.copyWith(color: AppColors.onSurfaceVariant),
             ),
           ],
         ),
       );
     }
-    
+
     return ListView.builder(
       controller: _scrollController,
       reverse: true, // 최신 메시지가 아래에 표시되도록
@@ -156,9 +162,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   }
 
   Widget _buildMessageInput() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      color: Theme.of(context).cardColor,
+      color: theme.cardColor,
       child: SafeArea(
         child: Row(
           children: [

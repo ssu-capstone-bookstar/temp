@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter_application_1/data/models/chat/chat_message_dto.dart';
 import 'package:flutter_application_1/data/repositories/chat/chat_repository_impl.dart';
-import 'package:flutter_application_1/domain/entities/chat/chat_message.dart';
 import 'package:flutter_application_1/domain/repositories/chat/chat_repository.dart';
 import 'package:flutter_application_1/presentation/viewmodels/chatroom/state/chatroom_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -11,7 +11,7 @@ part 'chatroom_viewmodel.g.dart';
 @riverpod
 class ChatRoomViewModel extends _$ChatRoomViewModel {
   late final ChatRepository _chatRepository;
-  StreamSubscription<ChatMessage>? _messageSubscription;
+  StreamSubscription<ChatMessageDto>? _messageSubscription;
   String? _currentRoomId;
 
   @override
@@ -100,7 +100,7 @@ class ChatRoomViewModel extends _$ChatRoomViewModel {
   String? get errorMessage => state.errorMessage;
 
   /// 메시지 목록
-  List<ChatMessage> get messages => state.messages;
+  List<ChatMessageDto> get messages => state.messages;
 
   /// 현재 채팅방 ID
   String? get currentRoomId => _currentRoomId;

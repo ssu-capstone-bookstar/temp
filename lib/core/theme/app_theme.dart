@@ -1,29 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/core/theme/app_colors.dart';
+import 'package:flutter_application_1/core/theme/app_text_styles.dart';
 
 class AppTheme {
   static final darkTheme = ThemeData(
-    scaffoldBackgroundColor: const Color(0xFF121212),
+    scaffoldBackgroundColor: AppColors.background,
     colorScheme: const ColorScheme.dark(
-      primary: Color(0xFFBB86FC), // 주요 색상 (버튼 등)
-      secondary: Color(0xFF03DAC6), // 보조 색상
-      onPrimary: Colors.black,
-      onSurface: Colors.white,
+      primary: AppColors.primary, // 주요 색상 (버튼 등)
+      secondary: AppColors.secondary, // 보조 색상
+      onPrimary: AppColors.onPrimary,
+      onSurface: AppColors.onSurface,
+      error: AppColors.error,
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       elevation: 0,
-      iconTheme: IconThemeData(color: Colors.white),
+      iconTheme: IconThemeData(color: AppColors.onSurface),
     ),
     textTheme: const TextTheme(
-      displayLarge: TextStyle(
-          fontSize: 48, fontWeight: FontWeight.bold, color: Colors.white),
-      bodyLarge: TextStyle(fontSize: 16, color: Colors.white),
+      displayLarge: AppTextStyles.displayLarge,
+      headlineLarge: AppTextStyles.headlineLarge,
+      headlineMedium: AppTextStyles.headlineMedium,
+      headlineSmall: AppTextStyles.headlineSmall,
+      titleLarge: AppTextStyles.titleLarge,
+      titleMedium: AppTextStyles.titleMedium,
+      titleSmall: AppTextStyles.titleSmall,
+      bodyLarge: AppTextStyles.bodyLarge,
+      bodyMedium: AppTextStyles.bodyMedium,
+      bodySmall: AppTextStyles.bodySmall,
+      labelLarge: AppTextStyles.labelLarge,
+      labelMedium: AppTextStyles.labelMedium,
+      labelSmall: AppTextStyles.labelSmall,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFBB86FC),
-        foregroundColor: Colors.black,
-        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.onPrimary,
+        textStyle: AppTextStyles.button,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
@@ -31,7 +44,7 @@ class AppTheme {
       ),
     ),
     bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: Color(0xFF1E1E1E),
+      backgroundColor: AppColors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:ably_flutter/ably_flutter.dart' as ably;
 import 'package:flutter_application_1/core/di/dio_client.dart';
 import 'package:flutter_application_1/data/models/ably/ably_token_data.dart';
+import 'package:flutter_application_1/data/models/chat/chat_message_dto.dart';
 import 'package:flutter_application_1/data/models/common/api_response_dto.dart';
-import 'package:flutter_application_1/domain/entities/chat/chat_message.dart';
 import 'package:flutter_application_1/domain/repositories/chat/chat_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
@@ -29,7 +29,7 @@ class ChatRepositoryImpl implements ChatRepository {
   String? _currentUserAvatar;
 
   // 스트림 컨트롤러들
-  final Map<String, StreamController<ChatMessage>> _messageControllers = {};
+  final Map<String, StreamController<ChatMessageDto>> _messageControllers = {};
   final StreamController<ably.ConnectionStateChange> _connectionController =
       StreamController<ably.ConnectionStateChange>.broadcast();
 
@@ -96,7 +96,7 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Stream<ChatMessage> subscribeToChannel(String channelName) {
+  Stream<ChatMessageDto> subscribeToChannel(String channelName) {
     if (_realtime == null) {
       throw Exception('Chat repository not initialized');
     }
@@ -107,7 +107,7 @@ class ChatRepositoryImpl implements ChatRepository {
     }
 
     // 새로운 스트림 컨트롤러 생성
-    final controller = StreamController<ChatMessage>.broadcast();
+    final controller = StreamController<ChatMessageDto>.broadcast();
     _messageControllers[channelName] = controller;
 
     try {
@@ -117,20 +117,21 @@ class ChatRepositoryImpl implements ChatRepository {
       messageStream.listen((ablyMessage) {
         try {
           final messageData = ablyMessage.data as Map<String, dynamic>;
-          final chatMessage = ChatMessage(
-            id: ablyMessage.id ??
+          final chatMessage = ChatMessageDto(
+            messageId: ablyMessage.id ??
                 DateTime.now().millisecondsSinceEpoch.toString(),
             senderId: messageData['senderId'] ?? '',
             senderName: messageData['senderName'] ?? '',
             content: messageData['content'] ?? '',
-            timestamp: DateTime.parse(
+            createdAt: DateTime.parse(
                 messageData['timestamp'] ?? DateTime.now().toIso8601String()),
             senderAvatar: messageData['senderAvatar'],
             isFromMe: messageData['senderId'] == _currentUserId,
           );
 
           controller.add(chatMessage);
-          _logger.d('Received message: ${chatMessage.content}');
+          _logger.d(
+              'Received message: ${chatMessage.content} from ${chatMessage.senderName}');
         } catch (e) {
           _logger.e('Error parsing message: $e');
         }
@@ -172,7 +173,7 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<List<ChatMessage>> getMessageHistory(String channelName,
+  Future<List<ChatMessageDto>> getMessageHistory(String channelName,
       {int limit = 50}) async {
     if (_rest == null) {
       throw Exception('Chat repository not initialized');
@@ -189,13 +190,13 @@ class ChatRepositoryImpl implements ChatRepository {
 
       final messages = history.items.map((ablyMessage) {
         final messageData = ablyMessage.data as Map<String, dynamic>;
-        return ChatMessage(
-          id: ablyMessage.id ??
+        return ChatMessageDto(
+          messageId: ablyMessage.id ??
               DateTime.now().millisecondsSinceEpoch.toString(),
           senderId: messageData['senderId'] ?? '',
           senderName: messageData['senderName'] ?? '',
           content: messageData['content'] ?? '',
-          timestamp: DateTime.parse(
+          createdAt: DateTime.parse(
               messageData['timestamp'] ?? DateTime.now().toIso8601String()),
           senderAvatar: messageData['senderAvatar'],
           isFromMe: messageData['senderId'] == _currentUserId,

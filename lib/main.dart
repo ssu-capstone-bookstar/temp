@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/router/app_router.dart';
+import 'package:flutter_application_1/core/theme/app_theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_hooks/flutter_hooks.dart'; // flutter_hooks 추가
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -40,14 +41,7 @@ class MyApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
     return MaterialApp.router(
       title: 'Focus Timer & Book Pick',
-      theme: ThemeData(
-        // AppTheme.lightTheme; // 만약 AppTheme를 사용한다면
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple), // 최신 ThemeData 설정
-        useMaterial3: true, // Material 3 사용 (선택 사항)
-      ),
+      theme: AppTheme.darkTheme,
       routerConfig: router,
     );
   }

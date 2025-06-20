@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter_application_1/data/models/chat/chat_message_dto.dart';
 import 'package:flutter_application_1/data/repositories/chat/chat_repository_impl.dart';
-import 'package:flutter_application_1/domain/entities/chat/chat_message.dart';
 import 'package:flutter_application_1/domain/repositories/chat/chat_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -10,11 +10,11 @@ part 'chat_viewmodel.g.dart';
 @riverpod
 class ChatViewModel extends _$ChatViewModel {
   late final ChatRepository _chatRepository;
-  StreamSubscription<ChatMessage>? _messageSubscription;
+  StreamSubscription<ChatMessageDto>? _messageSubscription;
   String? _currentChannel;
 
   @override
-  Future<List<ChatMessage>> build() async {
+  Future<List<ChatMessageDto>> build() async {
     _chatRepository = ref.read(chatRepositoryProvider);
     return [];
   }
@@ -82,9 +82,9 @@ class ChatViewModel extends _$ChatViewModel {
   }
 
   /// 새 메시지 추가
-  void _addMessage(ChatMessage message) {
+  void _addMessage(ChatMessageDto message) {
     state.whenData((messages) {
-      final updatedMessages = List<ChatMessage>.from(messages)..add(message);
+      final updatedMessages = List<ChatMessageDto>.from(messages)..add(message);
       state = AsyncData(updatedMessages);
     });
   }
@@ -99,7 +99,7 @@ class ChatViewModel extends _$ChatViewModel {
   String? get currentChannel => _currentChannel;
 
   /// 메시지 목록
-  List<ChatMessage> get messages {
+  List<ChatMessageDto> get messages {
     return state.when(
       data: (messages) => messages,
       loading: () => [],

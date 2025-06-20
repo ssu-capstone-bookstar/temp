@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/domain/entities/chat/chat_room.dart';
+import 'package:flutter_application_1/core/theme/app_colors.dart';
+import 'package:flutter_application_1/data/models/chat/chat_room_dto.dart';
 import 'package:flutter_application_1/presentation/viewmodels/chat/chat_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,8 +15,8 @@ class ChatListScreen extends ConsumerStatefulWidget {
 
 class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   // 임시 채팅방 데이터 (실제로는 API에서 가져와야 함)
-  final List<ChatRoom> _chatRooms = [
-    ChatRoom(
+  final List<ChatRoomDto> _chatRooms = [
+    ChatRoomDto(
       id: 'general',
       name: '일반 채팅',
       participantIds: ['user1', 'user2', 'user3'],
@@ -23,7 +24,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       lastMessageTime: DateTime.now().subtract(const Duration(minutes: 5)),
       unreadCount: 2,
     ),
-    ChatRoom(
+    ChatRoomDto(
       id: 'random',
       name: '랜덤 채팅',
       participantIds: ['user1', 'user4', 'user5'],
@@ -31,7 +32,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       lastMessageTime: DateTime.now().subtract(const Duration(hours: 1)),
       unreadCount: 0,
     ),
-    ChatRoom(
+    ChatRoomDto(
       id: 'tech',
       name: '기술 토론',
       participantIds: ['user1', 'user6', 'user7', 'user8'],
@@ -89,37 +90,37 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     );
   }
 
-  Widget _buildChatRoomItem(ChatRoom room) {
+  Widget _buildChatRoomItem(ChatRoomDto room) {
     final timeFormat = DateFormat('MM/dd HH:mm');
     final lastMessageTime = room.lastMessageTime;
     final timeText =
         lastMessageTime != null ? timeFormat.format(lastMessageTime) : '';
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: Colors.blue,
+        backgroundColor: theme.colorScheme.primary,
         child: Text(
           room.name[0].toUpperCase(),
-          style: const TextStyle(color: Colors.white),
+          style: textTheme.titleMedium
+              ?.copyWith(color: theme.colorScheme.onPrimary),
         ),
       ),
       title: Row(
         children: [
-          Expanded(child: Text(room.name)),
+          Expanded(child: Text(room.name, style: textTheme.bodyLarge)),
           if (room.unreadCount != null && room.unreadCount! > 0)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: Colors.red,
+                color: theme.colorScheme.error,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
                 room.unreadCount.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: textTheme.bodySmall
+                    ?.copyWith(color: theme.colorScheme.onError),
               ),
             ),
         ],
@@ -132,10 +133,10 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
               room.lastMessage!,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
+              style: textTheme.bodyMedium?.copyWith(
                 color: room.unreadCount != null && room.unreadCount! > 0
-                    ? Colors.black
-                    : Colors.grey,
+                    ? theme.colorScheme.onSurface
+                    : AppColors.onSurfaceVariant,
                 fontWeight: room.unreadCount != null && room.unreadCount! > 0
                     ? FontWeight.bold
                     : FontWeight.normal,
@@ -144,10 +145,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
           if (timeText.isNotEmpty)
             Text(
               timeText,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+              style: textTheme.bodySmall,
             ),
         ],
       ),
@@ -162,10 +160,12 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   }
 
   void _showCreateChatDialog() {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('새 채팅방 만들기'),
+        title: Text('새 채팅방 만들기', style: textTheme.titleLarge),
         content: const TextField(
           decoration: InputDecoration(
             labelText: '채팅방 이름',
@@ -175,7 +175,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('취소'),
+            child: Text('취소',
+                style: textTheme.labelLarge
+                    ?.copyWith(color: theme.colorScheme.primary)),
           ),
           ElevatedButton(
             onPressed: () {

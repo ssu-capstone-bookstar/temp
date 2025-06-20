@@ -4,9 +4,6 @@ import 'package:flutter_application_1/data/models/common/api_response_dto.dart';
 import 'package:flutter_application_1/data/models/profile/profile_response_dto.dart';
 import 'package:flutter_application_1/data/models/profile/profile_with_counts_dto.dart';
 import 'package:flutter_application_1/data/models/profile/update_profile_request_dto.dart';
-import 'package:flutter_application_1/domain/entities/profile/profile.dart';
-import 'package:flutter_application_1/domain/entities/profile/profile_info.dart';
-import 'package:flutter_application_1/domain/entities/profile/update_profile.dart';
 import 'package:flutter_application_1/domain/repositories/profile/profile_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -26,7 +23,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Dio get _dio => ref.read(dioClientProvider);
 
   @override
-  Future<Profile> getProfile(int memberId) async {
+  Future<ProfileWithCountsDto> getProfile(int memberId) async {
     try {
       final response = await _dio.get('/api/v2/profiles/$memberId');
       final apiResponse = ApiResponseDto<ProfileWithCountsDto>.fromJson(
@@ -34,24 +31,15 @@ class ProfileRepositoryImpl implements ProfileRepository {
         (json) => ProfileWithCountsDto.fromJson(json as Map<String, dynamic>),
       );
 
-      final profileDto = apiResponse.data!;
-      return Profile(
-        memberId: profileDto.memberId,
-        nickName: profileDto.nickName,
-        profileImageUrl: profileDto.profileImageUrl,
-        introduction: profileDto.introduction,
-        followingCount: profileDto.followingCount,
-        followerCount: profileDto.followerCount,
-        diaryCount: profileDto.diaryCount,
-      );
+      return apiResponse.data!;
     } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<ProfileInfo> updateProfile(
-      UpdateProfile updateProfile, int memberId) async {
+  Future<ProfileResponseDto> updateProfile(
+      UpdateProfileRequestDto updateProfile, int memberId) async {
     try {
       final requestDto = UpdateProfileRequestDto(
         nickName: updateProfile.nickName,
@@ -69,13 +57,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
         (json) => ProfileResponseDto.fromJson(json as Map<String, dynamic>),
       );
 
-      final profileDto = apiResponse.data!;
-      return ProfileInfo(
-        memberId: profileDto.memberId,
-        nickName: profileDto.nickName,
-        profileImageUrl: profileDto.profileImageUrl,
-        introduction: profileDto.introduction,
-      );
+      return apiResponse.data!;
     } catch (e) {
       rethrow;
     }

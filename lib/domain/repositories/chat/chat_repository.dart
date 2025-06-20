@@ -1,4 +1,4 @@
-import 'package:flutter_application_1/domain/entities/chat/chat_message.dart';
+import 'package:flutter_application_1/data/models/chat/chat_message_dto.dart';
 
 abstract class ChatRepository {
   /// 채팅 서비스 초기화
@@ -9,13 +9,13 @@ abstract class ChatRepository {
   });
 
   /// 채널 구독
-  Stream<ChatMessage> subscribeToChannel(String channelName);
+  Stream<ChatMessageDto> subscribeToChannel(String channelName);
 
   /// 메시지 전송
   Future<void> sendMessage(String channelName, String content);
 
   /// 메시지 히스토리 가져오기
-  Future<List<ChatMessage>> getMessageHistory(String channelName,
+  Future<List<ChatMessageDto>> getMessageHistory(String channelName,
       {int limit = 50});
 
   /// 채널 구독 해제

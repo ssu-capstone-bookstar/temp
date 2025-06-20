@@ -12,6 +12,8 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
     return Align(
       // isMe 값에 따라 정렬 위치를 결정합니다.
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -20,7 +22,7 @@ class ChatBubble extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
         decoration: BoxDecoration(
           // isMe 값에 따라 색상을 결정합니다.
-          color: isMe ? Theme.of(context).primaryColor : Colors.grey[300],
+          color: isMe ? theme.colorScheme.primary : theme.colorScheme.surface,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -30,8 +32,10 @@ class ChatBubble extends StatelessWidget {
         ),
         child: Text(
           message,
-          style: TextStyle(
-            color: isMe ? Colors.white : Colors.black,
+          style: textTheme.bodyLarge?.copyWith(
+            color: isMe
+                ? theme.colorScheme.onPrimary
+                : theme.colorScheme.onSurface,
           ),
         ),
       ),

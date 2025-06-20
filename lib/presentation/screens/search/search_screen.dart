@@ -1,44 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/core/theme/app_colors.dart';
 import 'package:flutter_application_1/presentation/viewmodels/search/search_viewmodel.dart';
 import 'package:flutter_application_1/presentation/widgets/book_search_tile.dart';
 import 'package:flutter_application_1/presentation/widgets/search_input_bar.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class SearchScreen extends ConsumerStatefulWidget {
+class SearchScreen extends HookConsumerWidget {
   const SearchScreen({super.key});
 
   @override
-  ConsumerState<SearchScreen> createState() => _SearchScreenState();
-}
-
-class _SearchScreenState extends ConsumerState<SearchScreen> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    // 스크롤이 거의 끝에 도달하면 다음 페이지를 요청합니다.
-    if (_scrollController.position.extentAfter < 200) {
-      // ✅ ViewModel의 메소드를 호출하는 부분은 동일합니다.
-      ref.read(searchViewModelProvider.notifier).fetchNextPage();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // ✅ ViewModel의 상태(AsyncValue)를 watch합니다.
+  Widget build(BuildContext context, WidgetRef ref) {
     final asyncState = ref.watch(searchViewModelProvider);
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
+    final scrollController = useScrollController();
+
+    useEffect(() {
+      void onScrollListener() {
+        // ViewModel의 Notifier 인스턴스 (메서드 호출 위함)
+        final searchNotifier = ref.read(searchViewModelProvider.notifier);
+        // ViewModel의 현재 데이터 상태 (hasNext, books 등 확인 위함)
+        final currentSearchState = ref.read(searchViewModelProvider);
+
+        // 현재 스크롤 위치 및 데이터 상태 확인 후 다음 페이지 요청
+        currentSearchState.whenOrNull(
+          data: (data) {
+            if (!scrollController.hasClients) return;
+
+            // 로딩 임계값 설정 남은 픽셀이 200보다 작을 때
+            // `extentAfter`는 뷰포트 이후에 남아있는 스크롤 가능한 픽셀의 양입니다.
+            final bool isNearEnd = scrollController.position.extentAfter <
+                200; // 뷰포트 이후 200픽셀 이하 남았을 때
+
+            // 다음 페이지를 로드해야 하는 조건:
+            // 1. 더 이상 데이터가 없는 경우가 아닐 때 (data.hasNext == true)
+            // 2. 현재 다음 페이지를 로딩 중이 아닐 때 (!searchNotifier.isFetchingNextPage)
+            // 3. 스크롤이 거의 끝에 도달했을 때 (isNearEnd)
+            if (data.hasNext &&
+                !searchNotifier.isFetchingNextPage &&
+                isNearEnd) {
+              print('Scrolled near end, fetching next page...'); // 디버깅용 로그
+              searchNotifier.fetchNextPage();
+            }
+          },
+          // 로딩 중이거나 에러 상태일 때는 추가적인 스크롤 요청을 하지 않습니다.
+          // loading: () => print('Search is loading, skipping next page fetch.'),
+          // error: (err, st) => print('Search is in error state, skipping next page fetch.'),
+        );
+      }
+
+      scrollController.addListener(onScrollListener);
+      return () {
+        scrollController.removeListener(onScrollListener);
+        scrollController.dispose();
+      };
+    }, [scrollController, ref]); // ref를 의존성에 추가하여 내부에서 read() 사용 가능
 
     return Scaffold(
       appBar: AppBar(
@@ -50,55 +68,49 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           children: [
             SearchInputBar(
               onSubmitted: (query) {
-                // 스크롤을 맨 위로 이동시킨 후 새로운 검색을 시작합니다.
-                if (_scrollController.hasClients) {
-                  _scrollController.jumpTo(0);
+                if (scrollController.hasClients) {
+                  scrollController.jumpTo(0); // 새 검색 시 스크롤 최상단으로
                 }
                 ref.read(searchViewModelProvider.notifier).searchBooks(query);
               },
             ),
             const SizedBox(height: 24),
             Expanded(
-              // ✅ 복잡한 if문 대신 asyncState.when을 사용하여 UI를 구성합니다.
               child: asyncState.when(
-                // ✅ 로딩 상태일 때 UI
                 loading: () => const Center(child: CircularProgressIndicator()),
-
-                // ✅ 에러 상태일 때 UI
-                error: (error, stackTrace) =>
-                    Center(child: Text('에러 발생: $error')),
-
-                // ✅ 데이터가 있을 때 UI
+                error: (error, stackTrace) => Center(
+                    child: Text('에러 발생: $error',
+                        style: textTheme.bodyLarge
+                            ?.copyWith(color: theme.colorScheme.error))),
                 data: (data) {
-                  // data는 SearchState 객체입니다.
                   if (data.books.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.search_off,
-                              size: 80, color: Colors.grey[400]),
+                          const Icon(Icons.search_off,
+                              size: 80, color: AppColors.onSurfaceVariant),
                           const SizedBox(height: 16),
                           Text(
                             data.query.isEmpty ? '도서를 검색해 보세요' : '검색 결과가 없습니다',
-                            style: TextStyle(
-                                fontSize: 18, color: Colors.grey[600]),
+                            style: textTheme.headlineSmall
+                                ?.copyWith(color: AppColors.onSurfaceVariant),
                           ),
                         ],
                       ),
                     );
                   }
 
-                  // 검색 결과 리스트
                   return ListView.builder(
-                    controller: _scrollController,
-                    // 다음 페이지가 있을 경우에만, 추가 로딩 인디케이터를 위한 공간(1)을 더합니다.
+                    controller: scrollController,
+                    // 다음 페이지가 있을 경우 로딩 인디케이터를 위한 공간(+1)을 추가
                     itemCount: data.books.length + (data.hasNext ? 1 : 0),
                     itemBuilder: (context, index) {
-                      // 마지막 아이템 위치에 도달했고, 다음 페이지가 있다면 로딩 인디케이터를 표시합니다.
+                      // 리스트의 마지막 항목일 때 (즉, 로딩 인디케이터 자리일 때)
                       if (index == data.books.length) {
-                        // isRefreshing은 pull-to-refresh 등에 사용되므로,
-                        // 여기서는 hasNext로 판단하는 것이 더 명확할 수 있습니다.
+                        // isFetchingNextPage 플래그는 ViewModel 내부에서 관리되므로,
+                        // 여기서는 단순히 data.hasNext를 통해 마지막 로딩 인디케이터 표시 여부만 결정합니다.
+                        // data.hasNext가 false가 되는 순간 이 로딩 인디케이터는 사라집니다.
                         return const Padding(
                           padding: EdgeInsets.symmetric(vertical: 16.0),
                           child: Center(child: CircularProgressIndicator()),

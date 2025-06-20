@@ -1,8 +1,9 @@
-import 'package:flutter_application_1/domain/entities/profile/profile.dart';
-import 'package:flutter_application_1/domain/entities/profile/profile_info.dart';
-import 'package:flutter_application_1/domain/entities/profile/update_profile.dart';
+import 'package:flutter_application_1/data/models/profile/profile_response_dto.dart';
+import 'package:flutter_application_1/data/models/profile/profile_with_counts_dto.dart';
+import 'package:flutter_application_1/data/models/profile/update_profile_request_dto.dart';
 
 abstract class ProfileRepository {
-  Future<Profile> getProfile(int memberId);
-  Future<ProfileInfo> updateProfile(UpdateProfile updateProfile, int memberId);
+  Future<ProfileWithCountsDto> getProfile(int memberId);
+  Future<ProfileResponseDto> updateProfile(
+      UpdateProfileRequestDto updateProfile, int memberId);
 }

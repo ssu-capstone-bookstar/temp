@@ -11,8 +11,6 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: Text(title),
       actions: actions,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
     );
   }
 

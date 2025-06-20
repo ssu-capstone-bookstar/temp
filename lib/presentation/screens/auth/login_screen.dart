@@ -123,15 +123,18 @@ class _PrivacyPolicyDialogState extends State<PrivacyPolicyDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
     return AlertDialog(
-      title: const Text('개인정보 처리방침 동의'),
+      title: Text('개인정보 처리방침 동의', style: textTheme.titleLarge),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CheckboxListTile(
-              title: const Text('전체 동의'),
+              title: Text('전체 동의', style: textTheme.bodyLarge),
               value: _isAllAgreed,
               onChanged: (value) {
                 setState(() {
@@ -141,22 +144,22 @@ class _PrivacyPolicyDialogState extends State<PrivacyPolicyDialog> {
               controlAffinity: ListTileControlAffinity.leading,
             ),
             const Divider(),
-            const Text(
+            Text(
               '개인정보 처리 방침',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Container(
               height: 300,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
+                border: Border.all(color: theme.dividerColor),
                 borderRadius: BorderRadius.circular(8),
               ),
               padding: const EdgeInsets.all(12),
-              child: const SingleChildScrollView(
+              child: SingleChildScrollView(
                 child: Text(
                   AppConstants.privacyPolicy,
-                  style: TextStyle(fontSize: 12),
+                  style: textTheme.bodySmall,
                 ),
               ),
             ),
@@ -166,12 +169,18 @@ class _PrivacyPolicyDialogState extends State<PrivacyPolicyDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('취소'),
+          child: Text('취소',
+              style: textTheme.labelLarge
+                  ?.copyWith(color: theme.colorScheme.primary)),
         ),
         TextButton(
           onPressed:
               _isAllAgreed ? () => Navigator.of(context).pop(true) : null,
-          child: const Text('동의'),
+          child: Text('동의',
+              style: textTheme.labelLarge?.copyWith(
+                  color: _isAllAgreed
+                      ? theme.colorScheme.primary
+                      : theme.disabledColor)),
         ),
       ],
     );

@@ -1,13 +1,17 @@
-import 'package:flutter_application_1/domain/entities/book/book.dart';
-import 'package:flutter_application_1/domain/entities/book/book_pagination.dart';
+import 'package:flutter_application_1/data/models/book/book_dto.dart';
+import 'package:flutter_application_1/data/models/book/recommended_book_dto.dart';
+import 'package:flutter_application_1/data/models/book/search_book_dto.dart';
+import 'package:flutter_application_1/data/models/common/pagination_dto.dart';
 
 abstract class BookRepository {
-  Future<BookPagination> searchBooks({
+  Future<PaginationDto<SearchBookDto>> searchBooks({
     required String query,
-    required int start,
+    required int page,
   });
 
-  Future<Book> getBookDetail({required int bookId});
+  Future<List<RecommendedBookDto>> getRecommendedBooks();
 
-  Future<List<Book>> getRecommendedBooks();
+  Future<BookDto> getBookDetail({
+    required int bookId,
+  });
 }

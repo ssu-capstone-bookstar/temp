@@ -1,10 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'book.freezed.dart';
+part 'book_dto.freezed.dart';
+part 'book_dto.g.dart';
 
 @freezed
-class Book with _$Book {
-  const factory Book({
+class BookDto with _$BookDto {
+  const factory BookDto({
     required int id,
     int? aladingBookId,
     required String title,
@@ -21,5 +22,8 @@ class Book with _$Book {
     required String imageUrl,
     DateTime? createdDate,
     DateTime? updatedDate,
-  }) = _Book;
+  }) = _BookDto;
+
+  factory BookDto.fromJson(Map<String, Object?> json) =>
+      _$BookDtoFromJson(json);
 }

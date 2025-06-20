@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/domain/entities/chat/chat_message.dart';
+import 'package:flutter_application_1/core/theme/app_colors.dart';
+import 'package:flutter_application_1/data/models/chat/chat_message_dto.dart';
 import 'package:flutter_application_1/presentation/viewmodels/chat/chat_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -65,6 +66,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget build(BuildContext context) {
     final chatState = ref.watch(chatViewModelProvider);
     final chatViewModel = ref.read(chatViewModelProvider.notifier);
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -74,8 +77,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             Text(widget.channelTitle),
             Text(
               chatViewModel.isConnected ? '연결됨' : '연결 중...',
-              style: TextStyle(
-                fontSize: 12,
+              style: textTheme.bodySmall?.copyWith(
                 color: chatViewModel.isConnected ? Colors.green : Colors.orange,
               ),
             ),
@@ -101,7 +103,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error, size: 48, color: Colors.red),
+                    Icon(Icons.error, size: 48, color: theme.colorScheme.error),
                     const SizedBox(height: 16),
                     Text('오류가 발생했습니다: $error'),
                     const SizedBox(height: 16),
@@ -123,17 +125,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _buildMessageList(List<ChatMessage> messages) {
+  Widget _buildMessageList(List<ChatMessageDto> messages) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
     if (messages.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
+            const Icon(Icons.chat_bubble_outline,
+                size: 64, color: AppColors.onSurfaceVariant),
+            const SizedBox(height: 16),
             Text(
               '아직 메시지가 없습니다',
-              style: TextStyle(color: Colors.grey),
+              style: textTheme.bodyLarge
+                  ?.copyWith(color: AppColors.onSurfaceVariant),
             ),
           ],
         ),
@@ -151,9 +157,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _buildMessageItem(ChatMessage message) {
+  Widget _buildMessageItem(ChatMessageDto message) {
     final isFromMe = message.isFromMe;
     final timeFormat = DateFormat('HH:mm');
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -169,7 +177,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ? NetworkImage(message.senderAvatar!)
                   : null,
               child: message.senderAvatar == null
-                  ? Text(message.senderName[0].toUpperCase())
+                  ? Text(message.senderName ?? '익명'[0].toUpperCase())
                   : null,
             ),
             const SizedBox(width: 8),
@@ -183,11 +191,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
-                      message.senderName,
-                      style: const TextStyle(
-                        fontSize: 12,
+                      message.senderName ?? '익명'[0].toUpperCase(),
+                      style: textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey,
+                        color: AppColors.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -195,23 +202,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: isFromMe ? Colors.blue : Colors.grey[200],
+                    color: isFromMe
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     message.content,
-                    style: TextStyle(
-                      color: isFromMe ? Colors.white : Colors.black,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: isFromMe
+                          ? theme.colorScheme.onPrimary
+                          : theme.colorScheme.onSurface,
                     ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
-                    timeFormat.format(message.timestamp),
-                    style: const TextStyle(
+                    timeFormat.format(message.createdAt),
+                    style: textTheme.bodySmall?.copyWith(
                       fontSize: 10,
-                      color: Colors.grey,
+                      color: AppColors.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -226,7 +237,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ? NetworkImage(message.senderAvatar!)
                   : null,
               child: message.senderAvatar == null
-                  ? Text(message.senderName[0].toUpperCase())
+                  ? Text(message.senderName ?? '나'[0].toUpperCase())
                   : null,
             ),
           ],
@@ -236,13 +247,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildMessageInput() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.2),
+            color: AppColors.grey.withAlpha(51),
             spreadRadius: 1,
             blurRadius: 3,
             offset: const Offset(0, -1),
@@ -271,7 +283,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           IconButton(
             onPressed: _sendMessage,
             icon: const Icon(Icons.send),
-            color: Colors.blue,
+            color: theme.colorScheme.primary,
           ),
         ],
       ),
