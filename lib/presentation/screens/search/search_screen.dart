@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/app_colors.dart';
 import 'package:flutter_application_1/presentation/viewmodels/search/search_viewmodel.dart';
-import 'package:flutter_application_1/presentation/widgets/book_search_tile.dart';
+import 'package:flutter_application_1/presentation/widgets/search_grid_item.dart';
 import 'package:flutter_application_1/presentation/widgets/search_input_bar.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -108,16 +108,16 @@ class SearchScreen extends HookConsumerWidget {
                     itemBuilder: (context, index) {
                       // 리스트의 마지막 항목일 때 (즉, 로딩 인디케이터 자리일 때)
                       if (index == data.books.length) {
-                        // isFetchingNextPage 플래그는 ViewModel 내부에서 관리되므로,
-                        // 여기서는 단순히 data.hasNext를 통해 마지막 로딩 인디케이터 표시 여부만 결정합니다.
-                        // data.hasNext가 false가 되는 순간 이 로딩 인디케이터는 사라집니다.
+                        if (!data.hasNext) {
+                          return const SizedBox.shrink(); // 더 이상 로딩할 데이터가 없을 때
+                        }
                         return const Padding(
                           padding: EdgeInsets.symmetric(vertical: 16.0),
                           child: Center(child: CircularProgressIndicator()),
                         );
                       }
                       final book = data.books[index];
-                      return BookSearchTile(book: book);
+                      return SearchGriditem(book: book);
                     },
                   );
                 },

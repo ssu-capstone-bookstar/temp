@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/app_colors.dart';
 
-class BookCard extends StatelessWidget {
+class RecommendedBookCard extends StatelessWidget {
   final int bookId; // 책의 고유 ID 추가
   final String title;
   final String author;
@@ -10,7 +10,7 @@ class BookCard extends StatelessWidget {
   final ValueChanged<int> onLikeToggle; // 좋아요 토글 콜백 추가 (bookId 전달)
   final ValueChanged<int> onTap; // 카드 탭 콜백 추가 (bookId 전달)
 
-  const BookCard({
+  const RecommendedBookCard({
     super.key,
     required this.bookId, // bookId 필수
     required this.title,

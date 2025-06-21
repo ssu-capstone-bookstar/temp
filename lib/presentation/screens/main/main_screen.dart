@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/data/models/book/recommended_book_dto.dart';
 import 'package:flutter_application_1/presentation/screens/search/search_screen.dart';
 import 'package:flutter_application_1/presentation/viewmodels/main/main_viewmodel.dart';
-import 'package:flutter_application_1/presentation/widgets/book_card.dart';
 import 'package:flutter_application_1/presentation/widgets/common_app_bar.dart';
+import 'package:flutter_application_1/presentation/widgets/recommended_book_card.dart';
 import 'package:flutter_application_1/presentation/widgets/search_input_bar.dart'; // SearchInputBar import
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -129,7 +129,7 @@ class _RecommendationSection extends HookConsumerWidget {
               final book = books[index]; // 현재 페이지의 책 데이터
               return Transform.scale(
                 scale: scale,
-                child: BookCard(
+                child: RecommendedBookCard(
                   bookId: book.id,
                   title: book.title,
                   author: book.author,

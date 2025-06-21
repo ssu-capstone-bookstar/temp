@@ -3,8 +3,8 @@ import 'package:flutter_application_1/core/theme/app_colors.dart';
 import 'package:flutter_application_1/data/models/book/search_book_dto.dart';
 import 'package:go_router/go_router.dart';
 
-class BookSearchTile extends StatelessWidget {
-  const BookSearchTile({super.key, required this.book});
+class SearchGriditem extends StatelessWidget {
+  const SearchGriditem({super.key, required this.book});
 
   final SearchBookDto book;
 
@@ -16,7 +16,7 @@ class BookSearchTile extends StatelessWidget {
     // 사용자의 탭(Tap)과 같은 상호작용에 반응
     return InkWell(
       onTap: () {
-        context.go('/book-pick/book/${book.id}');
+        context.go('/search/book/${book.id}');
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),

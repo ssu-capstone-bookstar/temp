@@ -9,8 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../presentation/screens/book/book_overview_screen.dart';
 import '../../presentation/screens/main/main_screen.dart';
-import '../../presentation/screens/search/search_result_detail_screen.dart';
 import '../../presentation/screens/search/search_screen.dart';
 
 part 'app_router.g.dart';
@@ -29,6 +29,19 @@ GoRouter appRouter(Ref ref) {
         path: '/login',
         builder: (context, state) => const LoginScreen(),
       ),
+      GoRoute(
+        path: '/search',
+        builder: (context, state) => const SearchScreen(),
+        routes: [
+          GoRoute(
+            path: 'book/:bookId',
+            builder: (context, state) {
+              final bookId = int.parse(state.pathParameters['bookId']!);
+              return BookOverviewScreen(bookId: bookId);
+            },
+          ),
+        ],
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return RootScreen(navigationShell: navigationShell);
@@ -43,19 +56,6 @@ GoRouter appRouter(Ref ref) {
                 pageBuilder: (context, state) => const NoTransitionPage(
                   child: MainScreen(),
                 ),
-                routes: [
-                  GoRoute(
-                    path: 'search',
-                    builder: (context, state) => const SearchScreen(),
-                  ),
-                  GoRoute(
-                    path: 'book/:bookId',
-                    builder: (context, state) {
-                      final bookId = state.pathParameters['bookId']!;
-                      return SearchResultDetailScreen(bookId: bookId);
-                    },
-                  ),
-                ],
               ),
             ],
           ),
@@ -94,7 +94,8 @@ GoRouter appRouter(Ref ref) {
                     path: ':channelId',
                     builder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>?;
-                      final channelName = extra?['channelName'] ?? state.pathParameters['channelId']!;
+                      final channelName = extra?['channelName'] ??
+                          state.pathParameters['channelId']!;
                       final channelTitle = extra?['channelTitle'] ?? '채팅';
                       return ChatScreen(
                         channelName: channelName,
